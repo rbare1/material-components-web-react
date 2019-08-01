@@ -22,7 +22,12 @@
 
 import React from 'react';
 import classnames from 'classnames';
-import {withRipple, InjectedProps} from '@material/react-ripple';
+import {
+  withRipple,
+  InjectedProps,
+  // @ts-ignore TODO(issues/955) Remove once possible
+  RippledComponentProps, // eslint-disable-line @typescript-eslint/no-unused-vars
+} from '@material/react-ripple';
 import {MDCIconButtonToggleAdapter} from '@material/icon-button/adapter';
 import {MDCIconButtonToggleFoundation} from '@material/icon-button/foundation';
 import {MDCIconButtonToggleEventDetail} from '@material/icon-button/types';
@@ -38,19 +43,21 @@ type IconButtonTypes = HTMLButtonElement | HTMLAnchorElement;
 export interface IconButtonBaseProps extends ElementAttributes {
   handleChange?: (evt: MDCIconButtonToggleEventDetail) => void;
   isLink?: boolean;
-};
+}
 
 interface IconButtonBaseState extends ElementAttributes {
   classList: Set<string>;
-};
+}
 
 export interface IconButtonProps<T extends IconButtonTypes>
-  extends InjectedProps<T>, IconButtonBaseProps, React.HTMLProps<T> {};
+  extends InjectedProps<T>,
+    IconButtonBaseProps,
+    React.HTMLProps<T> {}
 
 class IconButtonBase<T extends IconButtonTypes> extends React.Component<
   IconButtonProps<T>,
   IconButtonBaseState
-  > {
+> {
   foundation!: MDCIconButtonToggleFoundation;
 
   constructor(props: IconButtonProps<T>) {
@@ -90,7 +97,8 @@ class IconButtonBase<T extends IconButtonTypes> extends React.Component<
         classList.delete(className);
         this.setState({classList});
       },
-      hasClass: (className: string) => this.classes.split(' ').includes(className),
+      hasClass: (className: string) =>
+        this.classes.split(' ').includes(className),
       setAttr: this.updateState,
       notifyChange: this.props.handleChange!,
     };
@@ -101,7 +109,7 @@ class IconButtonBase<T extends IconButtonTypes> extends React.Component<
       ...prevState,
       [key]: value,
     }));
-  }
+  };
 
   handleClick_ = (e: React.MouseEvent<T>) => {
     this.props.onClick!(e);
@@ -113,13 +121,13 @@ class IconButtonBase<T extends IconButtonTypes> extends React.Component<
       children,
       initRipple,
       isLink,
-      /* eslint-disable no-unused-vars */
+      /* eslint-disable @typescript-eslint/no-unused-vars */
       className,
       handleChange,
       onClick,
       unbounded,
       [ARIA_PRESSED]: ariaPressed,
-      /* eslint-enable no-unused-vars */
+      /* eslint-enable @typescript-eslint/no-unused-vars */
       ...otherProps
     } = this.props;
 
@@ -131,13 +139,22 @@ class IconButtonBase<T extends IconButtonTypes> extends React.Component<
       ...otherProps,
     };
     if (isLink) {
-      return <a {...props as IconButtonProps<HTMLAnchorElement>}>{children}</a>;
+      return (
+        <a {...(props as IconButtonProps<HTMLAnchorElement>)}>{children}</a>
+      );
     }
-    return <button {...props as IconButtonProps<HTMLButtonElement>}>{children}</button>;
+    return (
+      <button {...(props as IconButtonProps<HTMLButtonElement>)}>
+        {children}
+      </button>
+    );
   }
 }
 
-const IconButton = withRipple<IconButtonProps<IconButtonTypes>, IconButtonTypes>(IconButtonBase);
+const IconButton = withRipple<
+  IconButtonProps<IconButtonTypes>,
+  IconButtonTypes
+>(IconButtonBase);
 
 export default IconButton;
 export {IconToggle, IconButtonBase};

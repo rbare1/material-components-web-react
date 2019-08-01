@@ -29,7 +29,8 @@ import {MDCTabAdapter} from '@material/tab/adapter';
 
 import TabRipple, {TabRippleProps} from './TabRipple';
 
-export interface TabProps extends React.HTMLProps<HTMLButtonElement> {
+export interface TabProps
+  extends React.HTMLProps<HTMLButtonElement | HTMLAnchorElement> {
   active?: boolean;
   focusOnActivate?: boolean;
   isFadingIndicator?: boolean;
@@ -37,6 +38,7 @@ export interface TabProps extends React.HTMLProps<HTMLButtonElement> {
   minWidth?: boolean;
   isMinWidthIndicator?: boolean;
   stacked?: boolean;
+  tag?: 'button' | 'a';
   previousIndicatorClientRect?: ClientRect;
   onInteraction?: () => void;
 }
@@ -68,15 +70,16 @@ export default class Tab extends React.Component<TabProps, TabState> {
     minWidth: false,
     isMinWidthIndicator: false,
     stacked: false,
+    tag: 'button',
     onInteraction: () => null,
   };
 
   state: TabState = {
-    'classList': new Set(),
+    classList: new Set(),
     'aria-selected': 'false',
-    'activateIndicator': false,
-    'previousIndicatorClientRect': this.props.previousIndicatorClientRect,
-    'tabIndex': -1,
+    activateIndicator: false,
+    previousIndicatorClientRect: this.props.previousIndicatorClientRect,
+    tabIndex: -1,
   };
 
   componentDidMount() {
@@ -129,22 +132,20 @@ export default class Tab extends React.Component<TabProps, TabState> {
         classList.delete(className);
         this.setState({classList});
       },
-      hasClass: (className: string) => this.classes.split(' ').includes(className),
-      setAttr: (attr: keyof MDCTabElementAttributes, value?: string | boolean) => (
-        this.setState((prevState) => ({...prevState, [attr]: value}))
-      ),
+      hasClass: (className: string) =>
+        this.classes.split(' ').includes(className),
+      setAttr: (
+        attr: keyof MDCTabElementAttributes,
+        value?: string | boolean
+      ) => this.setState((prevState) => ({...prevState, [attr]: value})),
       getOffsetLeft: () =>
         Number(this.tabRef.current && this.tabRef.current.offsetLeft),
       getOffsetWidth: () =>
         Number(this.tabRef.current && this.tabRef.current.offsetWidth),
       getContentOffsetLeft: () =>
-        this.tabContentRef.current ?
-          this.tabContentRef.current.offsetLeft :
-          0,
+        this.tabContentRef.current ? this.tabContentRef.current.offsetLeft : 0,
       getContentOffsetWidth: () =>
-        this.tabContentRef.current ?
-          this.tabContentRef.current.offsetWidth :
-          0,
+        this.tabContentRef.current ? this.tabContentRef.current.offsetWidth : 0,
       focus: () => this.tabRef.current && this.tabRef.current.focus(),
       notifyInteracted: this.props.onInteraction!,
       activateIndicator: (previousIndicatorClientRect: ClientRect) =>
@@ -179,11 +180,11 @@ export default class Tab extends React.Component<TabProps, TabState> {
 
   onFocus = (e: React.FocusEvent<HTMLButtonElement>) => {
     this.tabRippleRef.current && this.tabRippleRef.current.handleFocus(e);
-  }
+  };
 
   onBlur = (e: React.FocusEvent<HTMLButtonElement>) => {
     this.tabRippleRef.current && this.tabRippleRef.current.handleBlur(e);
-  }
+  };
 
   render() {
     const {
@@ -197,18 +198,18 @@ export default class Tab extends React.Component<TabProps, TabState> {
       minWidth,
       onInteraction,
       stacked,
+      tag: Tag,
       /* eslint-enable */
       children,
       isMinWidthIndicator,
       ...otherProps
     } = this.props;
-    const {
-      tabIndex,
-      ['aria-selected']: ariaSelected,
-    } = this.state;
+    const {tabIndex, ['aria-selected']: ariaSelected} = this.state;
 
     return (
-      <button
+      // https://github.com/Microsoft/TypeScript/issues/28892
+      // @ts-ignore
+      <Tag
         className={this.classes}
         role='tab'
         aria-selected={ariaSelected}
@@ -224,7 +225,7 @@ export default class Tab extends React.Component<TabProps, TabState> {
         </span>
         {isMinWidthIndicator ? null : this.renderIndicator()}
         <TabRipple ref={this.tabRippleRef} />
-      </button>
+      </Tag>
     );
   }
 
@@ -245,8 +246,4 @@ export default class Tab extends React.Component<TabProps, TabState> {
   }
 }
 
-export {
-  TabRipple,
-  Tab,
-  TabRippleProps,
-};
+export {TabRipple, Tab, TabRippleProps};

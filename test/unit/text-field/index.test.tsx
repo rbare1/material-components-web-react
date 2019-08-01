@@ -2,12 +2,8 @@ import React from 'react';
 import td from 'testdouble';
 import {assert} from 'chai';
 import {mount, shallow} from 'enzyme';
-import TextField, {
-  HelperText,
-  Input,
-} from '../../../packages/text-field';
+import TextField, {HelperText, Input} from '../../../packages/text-field';
 import {coerceForTesting} from '../helpers/types';
-import {InputProps} from '../../../packages/text-field/Input'; // eslint-disable-line no-unused-vars
 /* eslint-disable */
 import FloatingLabel from '../../../packages/floating-label';
 /* eslint-enable */
@@ -95,6 +91,16 @@ test('classNames get dense class when prop.dense is true', () => {
   assert.equal(textField.length, 1);
 });
 
+test('classNames get noLabel class when prop.noLabel is true', () => {
+  const wrapper = mount(
+    <TextField label='my label' noLabel>
+      <Input />
+    </TextField>
+  );
+  const textField = wrapper.find('.mdc-text-field--no-label');
+  assert.equal(textField.length, 1);
+});
+
 test('style prop adds style attribute', () => {
   const wrapper = mount(
     <TextField label='my label' style={{backgroundColor: 'red'}}>
@@ -143,7 +149,7 @@ test('#adapter.removeClass removes class from state.classList', () => {
       <Input />
     </TextField>
   );
-  const classList = new Set();
+  const classList = new Set<string>();
   classList.add('test-class-name');
   wrapper.setState({classList});
   wrapper.instance().adapter.removeClass('test-class-name');
@@ -156,7 +162,7 @@ test('#adapter.removeClass removes class from state.classList', () => {
       <Input />
     </TextField>
   );
-  const classList = new Set();
+  const classList = new Set<string>();
   classList.add('test-class-name');
   wrapper.setState({classList});
   assert.isTrue(wrapper.instance().adapter.hasClass('test-class-name'));
@@ -188,8 +194,7 @@ test('#adapter.input.getNativeInput.validity.valid returns false for required fi
       <Input value='' required />
     </TextField>
   );
-  const valid = wrapper.instance().adapter.getNativeInput()!.validity
-    .valid;
+  const valid = wrapper.instance().adapter.getNativeInput()!.validity.valid;
   assert.isFalse(valid);
 });
 
@@ -199,8 +204,7 @@ test('#adapter.input.getNativeInput.validity.valid returns true for required fie
       <Input value='value' required />
     </TextField>
   );
-  const valid = wrapper.instance().adapter.getNativeInput()!.validity
-    .valid;
+  const valid = wrapper.instance().adapter.getNativeInput()!.validity.valid;
   assert.isTrue(valid);
 });
 
@@ -224,7 +228,10 @@ test('#get adapter.input.value returns input.props.value', () => {
       <Input value={value} />
     </TextField>
   );
-  assert.equal(value.toString(), wrapper.instance().adapter.getNativeInput()!.value);
+  assert.equal(
+    value.toString(),
+    wrapper.instance().adapter.getNativeInput()!.value
+  );
 });
 
 test('#adapter.label.shakeLabel calls floatingLabelElement shake', () => {
@@ -250,11 +257,15 @@ test('#adapter.label.shakeLabel does not call floatingLabelElement shake if fals
       <Input />
     </TextField>
   );
-  wrapper.instance().floatingLabelElement = coerceForTesting<React.RefObject<FloatingLabel>>(td.object({
-    current: td.object({
-      shake: td.func(),
-    }),
-  }));
+  wrapper.instance().floatingLabelElement = coerceForTesting<
+    React.RefObject<FloatingLabel>
+  >(
+    td.object({
+      current: td.object({
+        shake: td.func(),
+      }),
+    })
+  );
   wrapper.instance().adapter.shakeLabel(false);
   td.verify(wrapper.instance().floatingLabelElement.current!.shake(), {
     times: 0,
@@ -301,8 +312,12 @@ test('#adapter.label.getLabelWidth returns offsetWidth of labelElement', () => {
     </TextField>,
     {attachTo: div}
   );
-  const labelElement = wrapper.instance().floatingLabelElement.current!.labelElement;
-  assert.equal(wrapper.instance().adapter.getLabelWidth(), labelElement.current!.offsetWidth);
+  const labelElement = wrapper.instance().floatingLabelElement.current!
+    .labelElement;
+  assert.equal(
+    wrapper.instance().adapter.getLabelWidth(),
+    labelElement.current!.offsetWidth
+  );
   document.body.removeChild(div);
 });
 
@@ -416,9 +431,14 @@ test('#events.onKeyDown triggers #foundation.handleTextFieldInteraction', () => 
 });
 
 test('renders leadingIcon if passed as prop', () => {
-  const wrapper = mount(<TextField label='my label'
-    leadingIcon={<i className='test-class-name-icon' />}
-  ><Input /></TextField>);
+  const wrapper = mount(
+    <TextField
+      label='my label'
+      leadingIcon={<i className='test-class-name-icon' />}
+    >
+      <Input />
+    </TextField>
+  );
   assert.equal(wrapper.find('.test-class-name-icon').length, 1);
 });
 
@@ -438,10 +458,15 @@ test('onLeadingIconSelect is passed to leadingIcon if passed as prop', () => {
       label='my label'
       onLeadingIconSelect={onSelect}
       leadingIcon={<i className='test-class-name-icon' />}
-    ><Input /></TextField>
+    >
+      <Input />
+    </TextField>
   );
 
-  const leadingIcon = wrapper.find('.test-class-name-icon').parent().props();
+  const leadingIcon = wrapper
+    .find('.test-class-name-icon')
+    .parent()
+    .props();
   assert.isFunction(leadingIcon.onSelect);
   assert.strictEqual(leadingIcon.onSelect, onSelect);
 });
@@ -451,22 +476,31 @@ test('onLeadingIconSelect is not passed to leadingIcon if not passed as prop', (
     <TextField
       label='my label'
       leadingIcon={<i className='test-class-name-icon' />}
-    ><Input /></TextField>
+    >
+      <Input />
+    </TextField>
   );
 
-  const leadingIcon = wrapper.find('.test-class-name-icon').parent().props();
+  const leadingIcon = wrapper
+    .find('.test-class-name-icon')
+    .parent()
+    .props();
   assert.isNotFunction(leadingIcon.onSelect);
   assert.isUndefined(leadingIcon.onSelect);
 });
 
 test('renders trailingIcon if passed as prop', () => {
-  const wrapper = mount(<TextField label='my label'
-    trailingIcon={<i className='test-class-name-icon' />}
-  ><Input /></TextField>);
+  const wrapper = mount(
+    <TextField
+      label='my label'
+      trailingIcon={<i className='test-class-name-icon' />}
+    >
+      <Input />
+    </TextField>
+  );
 
   assert.equal(wrapper.find('.test-class-name-icon').length, 1);
 });
-
 
 test('does not render trailingIcon if no trailingIcon prop is passed', () => {
   const wrapper = mount(
@@ -484,10 +518,15 @@ test('onTrailingIconSelect is passed to trailingIcon if passed as prop', () => {
       label='my label'
       onTrailingIconSelect={onSelect}
       trailingIcon={<i className='test-class-name-icon' />}
-    ><Input /></TextField>
+    >
+      <Input />
+    </TextField>
   );
 
-  const trailingIcon = wrapper.find('.test-class-name-icon').parent().props();
+  const trailingIcon = wrapper
+    .find('.test-class-name-icon')
+    .parent()
+    .props();
   assert.isFunction(trailingIcon.onSelect);
   assert.strictEqual(trailingIcon.onSelect, onSelect);
 });
@@ -497,10 +536,15 @@ test('onTrailingIconSelect is not passed to trailingIcon if not passed as prop',
     <TextField
       label='my label'
       trailingIcon={<i className='test-class-name-icon' />}
-    ><Input /></TextField>
+    >
+      <Input />
+    </TextField>
   );
 
-  const trailingIcon = wrapper.find('.test-class-name-icon').parent().props();
+  const trailingIcon = wrapper
+    .find('.test-class-name-icon')
+    .parent()
+    .props();
   assert.isNotFunction(trailingIcon.onSelect);
   assert.isUndefined(trailingIcon.onSelect);
 });
@@ -605,11 +649,34 @@ test('#inputProps.handleFocusChange updates state.isFocused', () => {
       <Input />
     </TextField>
   );
-  wrapper
-    .instance()
-    .inputProps(coerceForTesting<React.ReactElement<InputProps<HTMLInputElement>>>({}))
-    .handleFocusChange(true);
+  wrapper.instance().inputProps.handleFocusChange(true);
   assert.isTrue(wrapper.state().isFocused);
+});
+
+test('#inputProps.handleFocusChange calls foundation.activateFocus if isFocused is true', () => {
+  const wrapper = mount<TextField<HTMLInputElement>>(
+    <TextField label='my label'>
+      <Input />
+    </TextField>
+  );
+  const activateFocus = td.func();
+  const foundation = {activateFocus} as any;
+  wrapper.setState({foundation});
+  wrapper.instance().inputProps.handleFocusChange(true);
+  td.verify(activateFocus(), {times: 1});
+});
+
+test('#inputProps.handleFocusChange calls foundation.deactivateFocus if isFocused is false', () => {
+  const wrapper = mount<TextField<HTMLInputElement>>(
+    <TextField label='my label'>
+      <Input />
+    </TextField>
+  );
+  const deactivateFocus = td.func();
+  const foundation = {deactivateFocus} as any;
+  wrapper.setState({foundation});
+  wrapper.instance().inputProps.handleFocusChange(false);
+  td.verify(deactivateFocus(), {times: 1});
 });
 
 test('#inputProps.setDisabled updates state.disabled', () => {
@@ -618,10 +685,7 @@ test('#inputProps.setDisabled updates state.disabled', () => {
       <Input />
     </TextField>
   );
-  wrapper
-    .instance()
-    .inputProps(coerceForTesting<React.ReactElement<InputProps<HTMLInputElement>>>({}))
-    .setDisabled(true);
+  wrapper.instance().inputProps.setDisabled(true);
   assert.isTrue(wrapper.state().disabled);
 });
 
@@ -631,16 +695,13 @@ test('#inputProps.setInputId updates state.disabled', () => {
       <Input />
     </TextField>
   );
-  wrapper
-    .instance()
-    .inputProps(coerceForTesting<React.ReactElement<InputProps<HTMLInputElement>>>({}))
-    .setInputId('my-id');
+  wrapper.instance().inputProps.setInputId('my-id');
   assert.equal(wrapper.state().inputId, 'my-id');
 });
 
 test('passing a ref to the <Input /> should return the instance of the Input', () => {
   let inputInstance;
-  const inputRef = (input: any) => inputInstance = input;
+  const inputRef = (input: any) => (inputInstance = input);
   const wrapper = mount<TextField<HTMLInputElement>>(
     <TextField label='my label'>
       <Input ref={inputRef} />
@@ -678,11 +739,14 @@ test('#adapter.getNativeInput throws error when no inputComponent', () => {
   try {
     wrapper.instance().adapter.getNativeInput();
   } catch (e) {
-    assert.equal(e.message, 'MDCReactTextField: The input did not render properly');
+    assert.equal(
+      e.message,
+      'MDCReactTextField: The input did not render properly'
+    );
   }
 });
 
-test('Useless test for code coverage', () => {
+test(`MDC React doesn't need to implement this`, () => {
   const wrapper = mount<TextField<HTMLInputElement>>(
     <TextField>
       <Input />
@@ -695,4 +759,43 @@ test('Useless test for code coverage', () => {
   wrapper.instance().adapter.deregisterValidationAttributeChangeHandler(temp);
   wrapper.instance().adapter.registerInputInteractionHandler(temp, temp);
   wrapper.instance().adapter.deregisterInputInteractionHandler(temp, temp);
+});
+
+test('Input component sync test in TextField', () => {
+  class TestComponent extends React.Component {
+    state = {
+      disabled: false,
+    };
+    render() {
+      return (
+        <TextField>
+          <Input disabled={this.state.disabled} />
+        </TextField>
+      );
+    }
+  }
+  const wrapper = mount<TestComponent>(<TestComponent />);
+  // If inputComponent is null and disabled is true,
+  // setDisabled called #inputAdapter.getNativeInput
+  // and throw error because there is no inputComponent
+  assert.doesNotThrow(() => wrapper.instance().setState({disabled: true}));
+});
+
+test('FloatingLabel is floated even if value is changed programmatically', () => {
+  class TestComponent extends React.Component {
+    state = {value: ''};
+    render() {
+      return (
+        <TextField label='my label'>
+          <Input value={this.state.value} />
+        </TextField>
+      );
+    }
+  }
+  const wrapper = mount<TestComponent>(<TestComponent />);
+  const label = wrapper.find('.mdc-floating-label').getDOMNode();
+  const floatClass = 'mdc-floating-label--float-above';
+  assert.isFalse(label.className.includes(floatClass));
+  wrapper.setState({value: 'Test!'});
+  assert.isTrue(label.className.includes(floatClass));
 });

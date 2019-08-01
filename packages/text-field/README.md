@@ -63,7 +63,7 @@ dense | Boolean | Enables dense variant.
 floatingLabelClassName | String | An optional class added to the floating label element of the text field.
 fullWidth | Boolean | Enables fullWidth variant.
 helperText | Element | Helper text that appears below the text field. Use the `<HelperText>` component that comes with this package.
-label | String | Mandatory. Label text that appears as the floating label or placeholder.
+label | String | An optional label text that appears as the floating label or placeholder.
 leadingIcon | Element | An icon element that appears as the leading icon.
 lineRippleClassName | String | An optional class added to the line ripple element.
 notchedOutlineClassName | String | An optional class added to the notched outline element.
@@ -83,7 +83,6 @@ inputType | string | HTML tag to be used to render input element. 'input' (defau
 className | String | Classes to be applied to the input element.
 disabled | Function | Disables the input and the parent text field.
 foundation | Function | The text field foundation.
-handleValueChange | Function | A callback function to update React Text Field's value.
 isValid | Boolean | If set, this value will override the native input's validation.
 id | String | The `<input>` id attribute.
 onBlur | Function | Blur event handler.

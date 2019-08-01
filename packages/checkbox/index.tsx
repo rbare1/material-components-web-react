@@ -25,11 +25,17 @@ import classnames from 'classnames';
 import {MDCCheckboxFoundation} from '@material/checkbox/foundation';
 import {MDCCheckboxAdapter} from '@material/checkbox/adapter';
 import {cssClasses} from '@material/checkbox/constants';
-import {withRipple, InjectedProps} from '@material/react-ripple';
+import {
+  withRipple,
+  InjectedProps,
+  // @ts-ignore TODO(issues/955) Remove once possible
+  RippledComponentProps, // eslint-disable-line @typescript-eslint/no-unused-vars
+} from '@material/react-ripple';
 
 import NativeControl from './NativeControl';
 
-export interface CheckboxProps extends InjectedProps<HTMLDivElement, HTMLInputElement> {
+export interface CheckboxProps
+  extends InjectedProps<HTMLDivElement, HTMLInputElement> {
   checked?: boolean;
   className?: string;
   disabled?: boolean;
@@ -40,7 +46,7 @@ export interface CheckboxProps extends InjectedProps<HTMLDivElement, HTMLInputEl
   initRipple: (surface: HTMLDivElement, activator?: HTMLInputElement) => void;
   children?: React.ReactNode;
   unbounded: boolean;
-};
+}
 
 interface CheckboxState {
   checked?: boolean;
@@ -48,7 +54,7 @@ interface CheckboxState {
   classList: Set<string>;
   'aria-checked': string;
   disabled: boolean;
-};
+}
 
 export class Checkbox extends React.Component<CheckboxProps, CheckboxState> {
   inputElement: React.RefObject<HTMLInputElement> = React.createRef();
@@ -57,11 +63,11 @@ export class Checkbox extends React.Component<CheckboxProps, CheckboxState> {
   constructor(props: CheckboxProps) {
     super(props);
     this.state = {
-      'checked': props.checked,
-      'indeterminate': props.indeterminate,
-      'classList': new Set(),
+      checked: props.checked,
+      indeterminate: props.indeterminate,
+      classList: new Set(),
       'aria-checked': 'false',
-      'disabled': props.disabled!,
+      disabled: props.disabled!,
     };
   }
 
@@ -122,8 +128,11 @@ export class Checkbox extends React.Component<CheckboxProps, CheckboxState> {
     const {classList} = this.state;
     const {className} = this.props;
     return classnames(
-      'mdc-checkbox', Array.from(classList),
-      this.state.disabled ? cssClasses.DISABLED : null, className);
+      'mdc-checkbox',
+      Array.from(classList),
+      this.state.disabled ? cssClasses.DISABLED : null,
+      className
+    );
   }
 
   updateState = (key: keyof CheckboxState, value: string | boolean) => {
@@ -131,7 +140,7 @@ export class Checkbox extends React.Component<CheckboxProps, CheckboxState> {
       ...prevState,
       [key]: value,
     }));
-  }
+  };
 
   removeState = (key: keyof CheckboxState) => this.updateState(key, false);
 
@@ -167,11 +176,11 @@ export class Checkbox extends React.Component<CheckboxProps, CheckboxState> {
     const {checked, indeterminate} = evt.target;
     this.handleChange(checked, indeterminate);
     onChange!(evt);
-  }
+  };
 
   render() {
     const {
-      /* eslint-disable no-unused-vars */
+      /* eslint-disable @typescript-eslint/no-unused-vars */
       className,
       checked,
       indeterminate,
@@ -179,7 +188,7 @@ export class Checkbox extends React.Component<CheckboxProps, CheckboxState> {
       onChange,
       unbounded,
       disabled,
-      /* eslint-enable no-unused-vars */
+      /* eslint-enable @typescript-eslint/no-unused-vars */
       nativeControlId,
       name,
       ...otherProps
@@ -196,7 +205,11 @@ export class Checkbox extends React.Component<CheckboxProps, CheckboxState> {
           id={nativeControlId}
           checked={this.state.checked}
           disabled={this.state.disabled}
-          aria-checked={(this.state['aria-checked'] || this.state.checked!.toString()) as ('true' | 'false')}
+          aria-checked={
+            (this.state['aria-checked'] || this.state.checked!.toString()) as (
+              | 'true'
+              | 'false')
+          }
           name={name}
           onChange={this.onChange}
           rippleActivatorRef={this.inputElement}
@@ -220,4 +233,6 @@ export class Checkbox extends React.Component<CheckboxProps, CheckboxState> {
   }
 }
 
-export default withRipple<CheckboxProps, HTMLDivElement, HTMLInputElement>(Checkbox);
+export default withRipple<CheckboxProps, HTMLDivElement, HTMLInputElement>(
+  Checkbox
+);

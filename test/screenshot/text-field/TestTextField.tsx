@@ -1,17 +1,17 @@
 import React from 'react';
 import TextField, {Input} from '../../../packages/text-field';
 type TestFieldProps = {
-  disabled?: boolean,
-  id?: string,
-  variant?: string,
-  isRtl?: boolean,
-  minLength?: number,
-  required?: boolean,
-  value?: string | number | boolean,
+  disabled?: boolean;
+  id?: string;
+  variant?: string;
+  isRtl?: boolean;
+  minLength?: number;
+  required?: boolean;
+  value?: string | number | boolean;
 };
 
 type TestFieldState = {
-  value: string,
+  value: string;
 };
 
 class TestField extends React.Component<TestFieldProps, TestFieldState> {
@@ -22,19 +22,18 @@ class TestField extends React.Component<TestFieldProps, TestFieldState> {
     };
   }
 
-  onChange = (e: React.FormEvent) => this.setState({value: (e.target as HTMLInputElement).value});
+  onChange = (e: React.FormEvent) =>
+    this.setState({value: (e.target as HTMLInputElement).value});
 
   render() {
     const {
-      /* eslint-disable react/prop-types */
       disabled,
       id,
       variant,
       isRtl,
       minLength,
       required,
-      value, // eslint-disable-line no-unused-vars
-      /* eslint-enable react/prop-types */
+      value, // eslint-disable-line @typescript-eslint/no-unused-vars
       ...otherProps
     } = this.props;
 
@@ -45,8 +44,10 @@ class TestField extends React.Component<TestFieldProps, TestFieldState> {
           outlined={variant === 'outlined'}
           fullWidth={variant === 'fullWidth'}
           textarea={variant === 'textarea'}
+          noLabel={variant === 'noLabel'}
           {...otherProps}
-          className='text-field'>
+          className='text-field'
+        >
           <Input
             value={this.state.value}
             id={id}
@@ -54,6 +55,7 @@ class TestField extends React.Component<TestFieldProps, TestFieldState> {
             required={required}
             disabled={disabled}
             onChange={this.onChange}
+            maxLength={140}
           />
         </TextField>
       </div>

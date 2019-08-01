@@ -4,7 +4,7 @@
 
 # Material Components for React (MDC React)
 
-MDC React is the offical implementation of Google's Material Design Components. It is a wrapper library for [MDC Web](https://github.com/material-components/material-components-web). Please refer to our [MDC Web Catalog](https://material-components.github.io/material-components-web-catalog/#/) to play and interact with the Components.
+MDC React is the official implementation of Google's Material Design Components. It is a wrapper library for [MDC Web](https://github.com/material-components/material-components-web). Please refer to our [MDC Web Catalog](https://material-components.github.io/material-components-web-catalog/#/) to play and interact with the Components.
 
 ![mpmgq9h6b9x](https://user-images.githubusercontent.com/579873/44939654-d8fdfd80-ad3b-11e8-9b64-6244cb5e6886.png)
 
@@ -29,10 +29,12 @@ Component | Spec | MDC Web
 [List](./packages/list) | [List Design Page](https://material.io/design/components/lists.html) | [MDC List](https://github.com/material-components/material-components-web/tree/latest-release/packages/mdc-list)
 [Material Icon](./packages/material-icon) | [Material Icon Design Page](https://material.io/design/iconography/system-icons.html#design-principles) | [Material Icon Tool](https://material.io/tools/icons/?style=baseline)
 [Menu Surface](./packages/menu-surface) | [Menu Surface Design Page](https://material.io/design/components/menus.html#design-principles) | [MDC Menu Surface](https://github.com/material-components/material-components-web/tree/master/packages/mdc-menu-surface)
+[Menu](./packages/menu) | [Menu Design Page](https://material.io/design/components/menus.html#design-principles) | [MDC Menu](https://github.com/material-components/material-components-web/tree/master/packages/mdc-menu)
 [Notched Outline](./packages/notched-outline) | [Text Field Design Page](https://material.io/design/components/text-fields.html) | [MDC Notched Outline](https://github.com/material-components/material-components-web/tree/master/packages/mdc-notched-outline)
 [Radio](./packages/radio) | [Radio Design Page](https://material.io/design/components/selection-controls.html#radio-buttons) | [MDC Radio](https://github.com/material-components/material-components-web/tree/master/packages/mdc-radio)
 [Ripple](./packages/ripple) | [Ripple Design Page](https://material.io/design/interaction/states.html) | [MDC Ripple](https://github.com/material-components/material-components-web/tree/master/packages/mdc-ripple)
 [Select](./packages/select) | [Select Design Page](https://material.io/design/components/menus.html#) | [MDC Select](https://github.com/material-components/material-components-web/tree/master/packages/mdc-select)
+[Snackbar](./packages/snackbar) | [Snackbar Design Page](https://material.io/design/components/snackbars.html) | [MDC Snackbar](https://github.com/material-components/material-components-web/tree/master/packages/mdc-snackbar)
 [Switch](./packages/switch) | [Switch Design Page](https://material.io/design/components/selection-controls.html#switches) | [MDC Switch](https://github.com/material-components/material-components-web/tree/master/packages/mdc-switch)
 [Tab](./packages/tab) | [Tabs Design Page](https://material.io/design/components/tabs.html) | [MDC Tab](https://github.com/material-components/material-components-web/tree/master/packages/mdc-tab)
 [Tab Bar](./packages/tab-bar) | [Tabs Design Page](https://material.io/design/components/tabs.html) | [MDC Tab Bar](https://github.com/material-components/material-components-web/tree/master/packages/mdc-tab-bar)

@@ -23,6 +23,8 @@
 import React from 'react';
 import classnames from 'classnames';
 
+import {CSS_CLASSES} from './constant';
+
 export interface MediaProps extends React.HTMLProps<HTMLDivElement> {
   className?: string;
   square?: boolean;
@@ -35,32 +37,34 @@ export interface MediaProps extends React.HTMLProps<HTMLDivElement> {
 interface MediaChildren {
   children?: React.ReactNode;
   contentClassName?: string;
-};
+}
 
 interface StyleValues {
   imageUrl: string;
   style: React.CSSProperties;
-};
+}
 
-const renderChildren: (mediaChildren: MediaChildren) => React.ReactElement<HTMLDivElement> | undefined = ({
-  children, contentClassName, // eslint-disable-line react/prop-types
+const renderChildren: (
+  mediaChildren: MediaChildren
+) => React.ReactElement<HTMLDivElement> | undefined = ({
+  children,
+  contentClassName,
 }) => {
   if (!children) {
     return;
   }
-  const classes = classnames('mdc-card__media-content', contentClassName);
+  const classes = classnames(CSS_CLASSES.MEDIA_CONTENT, contentClassName);
   return <div className={classes}>{children}</div>;
 };
 
-const getStyles: (styleValues: StyleValues) => React.CSSProperties = ({imageUrl, style}) => {
-  return Object.assign({},
-    {backgroundImage: `url(${imageUrl})`},
-    style
-  );
+const getStyles: (styleValues: StyleValues) => React.CSSProperties = ({
+  imageUrl,
+  style,
+}) => {
+  return Object.assign({}, {backgroundImage: `url(${imageUrl})`}, style);
 };
 
 const Media: React.FunctionComponent<MediaProps> = ({
-  /* eslint-disable react/prop-types */
   className = '',
   contentClassName = '',
   children,
@@ -68,16 +72,19 @@ const Media: React.FunctionComponent<MediaProps> = ({
   wide = false,
   imageUrl = '',
   style = {},
-  /* eslint-enable react/prop-types */
   ...otherProps
 }) => {
-  const classes = classnames('mdc-card__media', className, {
-    'mdc-card__media--square': square,
-    'mdc-card__media--16-9': wide,
+  const classes = classnames(CSS_CLASSES.MEDIA, className, {
+    [CSS_CLASSES.MEDIA_SQUARE]: square,
+    [CSS_CLASSES.MEDIA_16_9]: wide,
   });
 
   return (
-    <div className={classes} style={getStyles({imageUrl, style})} {...otherProps}>
+    <div
+      className={classes}
+      style={getStyles({imageUrl, style})}
+      {...otherProps}
+    >
       {renderChildren({children, contentClassName})}
     </div>
   );

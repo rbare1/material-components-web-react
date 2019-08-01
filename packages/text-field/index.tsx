@@ -31,8 +31,9 @@ import {
 } from '@material/textfield/adapter';
 import {MDCTextFieldFoundation} from '@material/textfield/foundation';
 import Input, {InputProps} from './Input';
-import Icon, {IconProps} from './icon/index';
-import HelperText, {HelperTextProps} from './helper-text/index';
+import Icon, {IconProps} from './icon';
+import HelperText, {HelperTextProps} from './helper-text';
+import CharacterCounter, {CharacterCounterProps} from './character-counter';
 import FloatingLabel from '@material/react-floating-label';
 import LineRipple from '@material/react-line-ripple';
 import NotchedOutline from '@material/react-notched-outline';
@@ -48,7 +49,7 @@ export interface Props<T extends HTMLElement = HTMLInputElement> {
   floatingLabelClassName?: string;
   fullWidth?: boolean;
   helperText?: React.ReactElement<HelperTextProps>;
-  characterCounter?: React.ReactElement<any>;
+  characterCounter?: React.ReactElement<CharacterCounterProps>;
   label?: React.ReactNode;
   leadingIcon?: React.ReactElement<React.HTMLProps<HTMLOrSVGElement>>;
   lineRippleClassName?: string;
@@ -58,9 +59,11 @@ export interface Props<T extends HTMLElement = HTMLInputElement> {
   onTrailingIconSelect?: () => void;
   textarea?: boolean;
   trailingIcon?: React.ReactElement<React.HTMLProps<HTMLOrSVGElement>>;
-};
+  noLabel?: boolean;
+}
 
-type TextFieldProps<T extends HTMLElement = HTMLInputElement> = Props<T> & React.HTMLProps<HTMLDivElement>;
+type TextFieldProps<T extends HTMLElement = HTMLInputElement> = Props<T> &
+  React.HTMLProps<HTMLDivElement>;
 
 interface TextFieldState {
   foundation?: MDCTextFieldFoundation;
@@ -76,9 +79,12 @@ interface TextFieldState {
   lineRippleCenter: number;
   outlineIsNotched: boolean;
   isValid: boolean;
-};
+}
 
-class TextField<T extends HTMLElement = HTMLInputElement> extends React.Component<TextFieldProps<T>, TextFieldState> {
+class TextField<
+  T extends HTMLElement = HTMLInputElement
+> extends React.Component<TextFieldProps<T>, TextFieldState> {
+  textFieldElement: React.RefObject<HTMLDivElement> = React.createRef();
   floatingLabelElement: React.RefObject<FloatingLabel> = React.createRef();
   inputComponent_: null | Input<T> = null;
 
@@ -91,6 +97,7 @@ class TextField<T extends HTMLElement = HTMLInputElement> extends React.Componen
     notchedOutlineClassName: '',
     outlined: false,
     textarea: false,
+    noLabel: false,
   };
 
   constructor(props: TextFieldProps<T>) {
@@ -131,7 +138,7 @@ class TextField<T extends HTMLElement = HTMLInputElement> extends React.Componen
   }
 
   componentWillUnmount() {
-    this.state.foundation!.destroy();
+    this.state.foundation && this.state.foundation.destroy();
   }
   /**
    * getters
@@ -145,6 +152,7 @@ class TextField<T extends HTMLElement = HTMLInputElement> extends React.Componen
       textarea,
       trailingIcon,
       leadingIcon,
+      noLabel,
     } = this.props;
 
     return classnames(cssClasses.ROOT, Array.from(classList), className, {
@@ -152,25 +160,27 @@ class TextField<T extends HTMLElement = HTMLInputElement> extends React.Componen
       [cssClasses.DISABLED]: disabled,
       [cssClasses.FOCUSED]: isFocused,
       [cssClasses.INVALID]: !isValid,
-      [cssClasses.OUTLINED]: this.notchedOutlineAdapter.hasOutline() && !fullWidth,
+      [cssClasses.OUTLINED]:
+        this.notchedOutlineAdapter.hasOutline() && !fullWidth,
       [cssClasses.TEXTAREA]: textarea,
       [cssClasses.WITH_LEADING_ICON]: leadingIcon,
       // TODO change literal to constant
       'mdc-text-field--fullwidth': fullWidth,
       'mdc-text-field--with-trailing-icon': trailingIcon,
-      'mdc-text-field--no-label': !this.labelAdapter.hasLabel(),
+      'mdc-text-field--no-label': !this.labelAdapter.hasLabel() || noLabel,
     });
   }
 
   get otherProps() {
     const {
-      /* eslint-disable no-unused-vars */
+      /* eslint-disable @typescript-eslint/no-unused-vars */
       children,
       className,
       dense,
       floatingLabelClassName,
       fullWidth,
       helperText,
+      characterCounter,
       label,
       leadingIcon,
       lineRippleClassName,
@@ -180,7 +190,8 @@ class TextField<T extends HTMLElement = HTMLInputElement> extends React.Componen
       outlined,
       textarea,
       trailingIcon,
-      /* eslint-enable no-unused-vars */
+      noLabel,
+      /* eslint-enable @typescript-eslint/no-unused-vars */
       ...otherProps
     } = this.props;
 
@@ -189,13 +200,15 @@ class TextField<T extends HTMLElement = HTMLInputElement> extends React.Componen
 
   get adapter(): MDCTextFieldAdapter {
     const rootAdapterMethods: MDCTextFieldRootAdapter = {
-      addClass: (className: string) => this.setState({classList: this.state.classList.add(className)}),
+      addClass: (className: string) =>
+        this.setState({classList: this.state.classList.add(className)}),
       removeClass: (className: string) => {
         const {classList} = this.state;
         classList.delete(className);
         this.setState({classList});
       },
-      hasClass: (className: string) => this.classes.split(' ').includes(className),
+      hasClass: (className: string) =>
+        this.classes.split(' ').includes(className),
       // Please manage handler though JSX
       registerTextFieldInteractionHandler: () => undefined,
       deregisterTextFieldInteractionHandler: () => undefined,
@@ -272,23 +285,36 @@ class TextField<T extends HTMLElement = HTMLInputElement> extends React.Componen
     };
   }
 
-  inputProps(child: React.ReactElement<InputProps<T>>) {
+  get inputProps() {
     // ref does exist on React.ReactElement<InputProps<T>>
     // @ts-ignore
-    const {props, ref} = child;
+    const {props} = React.Children.only(this.props.children);
+
     return Object.assign({}, props, {
       foundation: this.state.foundation,
-      handleFocusChange: (isFocused: boolean) => this.setState({isFocused}),
+      handleFocusChange: (isFocused: boolean) => {
+        this.setState({isFocused});
+        if (!this.state.foundation) return;
+        if (isFocused) {
+          this.state.foundation.activateFocus();
+        } else {
+          this.state.foundation.deactivateFocus();
+        }
+      },
       setDisabled: (disabled: boolean) => this.setState({disabled}),
       setInputId: (id: string) => this.setState({inputId: id}),
-      ref: (input: Input<T>) => {
-        if (typeof ref === 'function') {
-          ref(input);
-        }
-        this.inputComponent_ = input;
-      },
+      syncInput: (input: Input<T>) => (this.inputComponent_ = input),
       inputType: this.props.textarea ? 'textarea' : 'input',
+      placeholder: this.props.noLabel ? this.props.label : null,
     });
+  }
+
+  get characterCounterProps() {
+    const {value, maxLength} = this.inputProps;
+    return {
+      count: value ? value.length : 0,
+      maxLength: maxLength ? parseInt(maxLength) : 0,
+    };
   }
 
   /**
@@ -304,6 +330,7 @@ class TextField<T extends HTMLElement = HTMLInputElement> extends React.Componen
       leadingIcon,
       trailingIcon,
       textarea,
+      noLabel,
     } = this.props;
     const {foundation} = this.state;
 
@@ -314,25 +341,42 @@ class TextField<T extends HTMLElement = HTMLInputElement> extends React.Componen
           className={this.classes}
           onClick={() => foundation!.handleTextFieldInteraction()}
           onKeyDown={() => foundation!.handleTextFieldInteraction()}
+          ref={this.textFieldElement}
           key='text-field-container'
         >
-          {leadingIcon ? this.renderIcon(leadingIcon, onLeadingIconSelect) : null}
+          {leadingIcon
+            ? this.renderIcon(leadingIcon, onLeadingIconSelect)
+            : null}
+          {textarea &&
+            characterCounter &&
+            this.renderCharacterCounter(characterCounter)}
           {this.renderInput()}
-          {this.notchedOutlineAdapter.hasOutline() ? this.renderNotchedOutline() : <React.Fragment>
-            {this.labelAdapter.hasLabel() ? this.renderLabel() : null}
-            {!textarea && !fullWidth ? this.renderLineRipple() : null}
-          </React.Fragment>}
-          {trailingIcon ? this.renderIcon(trailingIcon, onTrailingIconSelect) : null}
+          {this.notchedOutlineAdapter.hasOutline() ? (
+            this.renderNotchedOutline()
+          ) : (
+            <React.Fragment>
+              {this.labelAdapter.hasLabel() && !noLabel
+                ? this.renderLabel()
+                : null}
+              {!textarea && !fullWidth ? this.renderLineRipple() : null}
+            </React.Fragment>
+          )}
+          {trailingIcon
+            ? this.renderIcon(trailingIcon, onTrailingIconSelect)
+            : null}
         </div>
-        {helperText || characterCounter ? this.renderHelperLine(helperText, characterCounter) : null}
+        {helperText || characterCounter
+          ? this.renderHelperLine(helperText, characterCounter)
+          : null}
       </React.Fragment>
     );
   }
 
   renderInput() {
-    const child: React.ReactElement<InputProps<T>> = React.Children.only(this.props.children);
-    const props = this.inputProps(child);
-    return React.cloneElement(child, props);
+    const child = React.Children.only(
+      this.props.children
+    ) as React.ReactElement<InputProps<T>>;
+    return React.cloneElement(child, this.inputProps);
   }
 
   renderLabel() {
@@ -374,16 +418,23 @@ class TextField<T extends HTMLElement = HTMLInputElement> extends React.Componen
         notchWidth={notchedLabelWidth}
         notch={outlineIsNotched}
       >
-        {this.labelAdapter.hasLabel() ? this.renderLabel(): null}
+        {this.labelAdapter.hasLabel() ? this.renderLabel() : null}
       </NotchedOutline>
     );
   }
 
-  renderHelperLine(helperText?: React.ReactElement<HelperTextProps>, characterCounter?: React.ReactElement<any>) {
-    return <div className={cssClasses.HELPER_LINE}>
-      {helperText && this.renderHelperText(helperText)}
-      {characterCounter}
-    </div>;
+  renderHelperLine(
+    helperText?: React.ReactElement<HelperTextProps>,
+    characterCounter?: React.ReactElement<CharacterCounterProps>
+  ) {
+    return (
+      <div className={cssClasses.HELPER_LINE}>
+        {helperText && this.renderHelperText(helperText)}
+        {characterCounter &&
+          !this.props.textarea &&
+          this.renderCharacterCounter(characterCounter)}
+      </div>
+    );
   }
 
   renderHelperText(helperText: React.ReactElement<HelperTextProps>) {
@@ -393,18 +444,42 @@ class TextField<T extends HTMLElement = HTMLInputElement> extends React.Componen
         isValid,
         key: 'text-field-helper-text',
       },
-      helperText.props,
+      helperText.props
     );
     return React.cloneElement(helperText, props);
   }
 
-  renderIcon(icon: React.ReactElement<React.HTMLProps<HTMLOrSVGElement>>,
-    onSelect?: () => void) {
+  renderIcon(
+    icon: React.ReactElement<React.HTMLProps<HTMLOrSVGElement>>,
+    onSelect?: () => void
+  ) {
     const {disabled} = this.state;
     // Toggling disabled will trigger icon.foundation.setDisabled()
-    return <Icon disabled={disabled} onSelect={onSelect}>{icon}</Icon>;
+    return (
+      <Icon disabled={disabled} onSelect={onSelect}>
+        {icon}
+      </Icon>
+    );
+  }
+
+  renderCharacterCounter(
+    characterCounter: React.ReactElement<CharacterCounterProps>
+  ) {
+    return React.cloneElement(
+      characterCounter,
+      Object.assign(this.characterCounterProps, characterCounter.props)
+    );
   }
 }
 
-export {Icon, HelperText, Input, IconProps, HelperTextProps, InputProps};
+export {
+  Icon,
+  HelperText,
+  CharacterCounter,
+  Input,
+  IconProps,
+  HelperTextProps,
+  CharacterCounterProps,
+  InputProps,
+};
 export default TextField;

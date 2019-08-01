@@ -24,21 +24,23 @@ import React from 'react';
 import classnames from 'classnames';
 import {MDCFloatingLabelFoundation} from '@material/floating-label/foundation';
 import {MDCFloatingLabelAdapter} from '@material/floating-label/adapter';
+import {cssClasses} from '@material/floating-label/constants';
 
-export interface FloatingLabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
+export interface FloatingLabelProps
+  extends React.LabelHTMLAttributes<HTMLLabelElement> {
   className?: string;
   handleWidthChange?: (width: number) => void;
   float?: boolean;
-};
+}
 
 interface FloatingLabelState {
   classList: Set<string>;
-};
+}
 
 export default class FloatingLabel extends React.Component<
   FloatingLabelProps,
   FloatingLabelState
-  > {
+> {
   foundation!: MDCFloatingLabelFoundation;
   labelElement: React.RefObject<HTMLLabelElement> = React.createRef();
 
@@ -80,7 +82,7 @@ export default class FloatingLabel extends React.Component<
   get classes() {
     const {classList} = this.state;
     const {className} = this.props;
-    return classnames('mdc-floating-label', Array.from(classList), className);
+    return classnames(cssClasses.ROOT, Array.from(classList), className);
   }
 
   get adapter(): MDCFloatingLabelAdapter {
@@ -118,16 +120,15 @@ export default class FloatingLabel extends React.Component<
   };
 
   onShakeEnd = () => {
-    const {LABEL_SHAKE} = MDCFloatingLabelFoundation.cssClasses;
-    this.removeClassFromClassList(LABEL_SHAKE);
+    this.removeClassFromClassList(cssClasses.LABEL_SHAKE);
   };
 
   render() {
     const {
-      className, // eslint-disable-line no-unused-vars
+      className, // eslint-disable-line @typescript-eslint/no-unused-vars
       children,
-      handleWidthChange, // eslint-disable-line no-unused-vars
-      float, // eslint-disable-line no-unused-vars
+      handleWidthChange, // eslint-disable-line @typescript-eslint/no-unused-vars
+      float, // eslint-disable-line @typescript-eslint/no-unused-vars
       ...otherProps
     } = this.props;
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import td from 'testdouble';
-import {suite, test} from 'mocha';
 import {assert} from 'chai';
 import {mount, shallow} from 'enzyme';
 import FloatingLabel from '../../../packages/floating-label/index';
@@ -43,7 +42,9 @@ test('initializing with float to true floats the label', () => {
 });
 
 test('calls handleWidthChange with the offhandleWidthChange of the labelElement', () => {
-  const handleWidthChange = coerceForTesting<(width: number) => void>(td.func());
+  const handleWidthChange = coerceForTesting<(width: number) => void>(
+    td.func()
+  );
   const div = document.createElement('div');
   // needs to be attached to real DOM to get width
   // https://github.com/airbnb/enzyme/issues/1525
@@ -53,12 +54,19 @@ test('calls handleWidthChange with the offhandleWidthChange of the labelElement'
     <FloatingLabel handleWidthChange={handleWidthChange}>Test</FloatingLabel>,
     options
   );
-  td.verify(handleWidthChange(coerceForTesting<HTMLLabelElement>(wrapper.getDOMNode()).offsetWidth), {times: 1});
+  td.verify(
+    handleWidthChange(
+      coerceForTesting<HTMLLabelElement>(wrapper.getDOMNode()).offsetWidth
+    ),
+    {times: 1}
+  );
   div.remove();
 });
 
 test('#componentDidUpdate updating the children updates width', () => {
-  const handleWidthChange = coerceForTesting<(width: number) => void>(td.func());
+  const handleWidthChange = coerceForTesting<(width: number) => void>(
+    td.func()
+  );
   const div = document.createElement('div');
   // needs to be attached to real DOM to get width
   // https://github.com/airbnb/enzyme/issues/1525
@@ -69,9 +77,11 @@ test('#componentDidUpdate updating the children updates width', () => {
     options
   );
 
-  const firstLength = coerceForTesting<HTMLLabelElement>(wrapper.getDOMNode()).offsetWidth;
+  const firstLength = coerceForTesting<HTMLLabelElement>(wrapper.getDOMNode())
+    .offsetWidth;
   wrapper.setProps({children: 'Test More Text'});
-  const secondLength = coerceForTesting<HTMLLabelElement>(wrapper.getDOMNode()).offsetWidth;
+  const secondLength = coerceForTesting<HTMLLabelElement>(wrapper.getDOMNode())
+    .offsetWidth;
   td.verify(handleWidthChange(firstLength), {times: 1});
   td.verify(handleWidthChange(secondLength), {times: 1});
   div.remove();
@@ -83,16 +93,19 @@ test('#componentDidUpdate updating float to true floats the label', () => {
   assert.isTrue(wrapper.hasClass('mdc-floating-label--float-above'));
 });
 
-test('initializing float to true, and then updating it to false ' +
-  'removes the class', () => {
-  const wrapper = shallow(<FloatingLabel float/>);
-  wrapper.setProps({float: false});
-  assert.isFalse(wrapper.hasClass('mdc-floating-label--float-above'));
-});
+test(
+  'initializing float to true, and then updating it to false ' +
+    'removes the class',
+  () => {
+    const wrapper = shallow(<FloatingLabel float />);
+    wrapper.setProps({float: false});
+    assert.isFalse(wrapper.hasClass('mdc-floating-label--float-above'));
+  }
+);
 
 test('on animationend should remove the shake class', () => {
   const wrapper = mount(<FloatingLabel />);
-  const classList = new Set();
+  const classList = new Set<string>();
   classList.add('mdc-floating-label--shake');
   wrapper.setState({classList});
   wrapper.simulate('animationEnd');
@@ -107,7 +120,7 @@ test('#adapter.addClass', () => {
 
 test('#adapter.removeClass', () => {
   const wrapper = mount<FloatingLabel>(<FloatingLabel />);
-  const classList = new Set();
+  const classList = new Set<string>();
   classList.add('test-class-name');
   wrapper.setState({classList});
   assert.isTrue(wrapper.state().classList.has('test-class-name'));

@@ -1,6 +1,6 @@
 {
   "name": "@material/react-tab-bar",
-  "version": "0.12.0",
+  "version": "0.15.0",
   "description": "Material Components React Tab Bar",
   "license": "Apache-2.0",
   "main": "dist/index.js",
@@ -15,14 +15,17 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/material-components/material-components-web-react.git"
+    "url": "https://github.com/material-components/material-components-web-react.git",
+    "directory": "packages/tab-bar"
+  },
+  "peerDependencies": {
+    "react": "^16.4.2"
   },
   "dependencies": {
-    "@material/react-tab": "^0.12.0",
-    "@material/react-tab-scroller": "^0.12.0",
+    "@material/react-tab": "^0.15.0",
+    "@material/react-tab-scroller": "^0.15.0",
     "@material/tab-bar": "^1.0.0",
-    "classnames": "^2.2.6",
-    "react": "^16.3.2"
+    "classnames": "^2.2.6"
   },
   "publishConfig": {
     "access": "public"

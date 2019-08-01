@@ -1,6 +1,6 @@
 {
   "name": "@material/react-list",
-  "version": "0.12.0",
+  "version": "0.15.0",
   "description": "Material Components React List",
   "license": "MIT",
   "main": "dist/index.js",
@@ -13,16 +13,20 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/material-components/material-components-web-react.git"
+    "url": "https://github.com/material-components/material-components-web-react.git",
+    "directory": "packages/list"
+  },
+  "peerDependencies": {
+    "react": "^16.4.2"
   },
   "dependencies": {
     "@material/dom": "^1.1.0",
     "@material/list": "^1.0.0",
-    "@material/react-checkbox": "^0.10.0",
-    "@material/react-radio": "^0.10.0",
+    "@material/react-checkbox": "^0.15.0",
+    "@material/react-radio": "^0.15.0",
+    "@material/react-ripple": "^0.15.0",
     "classnames": "^2.2.6",
-    "memoize-one": "^5.0.4",
-    "react": "^16.4.2"
+    "memoize-one": "^5.0.4"
   },
   "publishConfig": {
     "access": "public"

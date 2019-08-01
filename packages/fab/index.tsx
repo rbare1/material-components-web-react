@@ -22,55 +22,65 @@
 
 import React from 'react';
 import classnames from 'classnames';
-import {withRipple, InjectedProps} from '@material/react-ripple';
+import {
+  withRipple,
+  InjectedProps,
+  // @ts-ignore TODO(issues/955) Remove once possible
+  RippledComponentProps, // eslint-disable-line @typescript-eslint/no-unused-vars
+} from '@material/react-ripple';
 
-export interface FabProps extends InjectedProps<HTMLButtonElement>,
-  React.ButtonHTMLAttributes<HTMLButtonElement> {
-    exited?: boolean;
-    mini?: boolean;
-    icon?: React.ReactElement<HTMLElement>;
-    textLabel?: string;
-    className?: string;
-    initRipple: React.Ref<HTMLButtonElement>;
-    unbounded: boolean;
+import {CSS_CLASSES} from './constant';
+
+export interface FabProps
+  extends InjectedProps<HTMLButtonElement>,
+    React.ButtonHTMLAttributes<HTMLButtonElement> {
+  exited?: boolean;
+  mini?: boolean;
+  icon?: React.ReactElement<HTMLElement>;
+  textLabel?: string;
+  className?: string;
+  initRipple?: React.Ref<HTMLButtonElement>;
+  unbounded?: boolean;
 }
 
-const Icon: React.FunctionComponent<{icon?: React.ReactElement<HTMLElement>}> = ({icon}) => {
+const Icon: React.FunctionComponent<{
+  icon?: React.ReactElement<HTMLElement>;
+}> = ({icon}) => {
   if (!icon) {
     return null;
   }
   const updatedProps = {
-    className: classnames('mdc-fab__icon', icon.props.className),
+    className: classnames(CSS_CLASSES.ICON, icon.props.className),
   };
   return React.cloneElement(icon, updatedProps);
 };
 
 const TextLabel: React.FunctionComponent<{textLabel: string}> = ({
-  textLabel, // eslint-disable-line react/prop-types
+  textLabel,
 }) => {
   if (textLabel.length === 0) {
     return null;
   }
-  return <span className='mdc-fab__label'>{textLabel}</span>;
+  return <span className={CSS_CLASSES.LABEL}>{textLabel}</span>;
 };
 
-export const Fab: React.FunctionComponent<FabProps & React.HTMLProps<HTMLButtonElement>> = ({
-  /* eslint-disable react/prop-types */
+export const Fab: React.FunctionComponent<
+  FabProps & React.HTMLProps<HTMLButtonElement>
+> = ({
   exited = false,
   mini = false,
   icon,
   textLabel = '',
   className = '',
   initRipple = () => {},
-  unbounded,
-  /* eslint-enable react/prop-types */
+  unbounded, // eslint-disable-line @typescript-eslint/no-unused-vars
   ...otherProps
 }) => {
   const extended = textLabel.length > 0;
-  const classes = classnames('mdc-fab', className, {
-    'mdc-fab--mini': mini,
-    'mdc-fab--extended': extended,
-    'mdc-fab--exited': exited,
+  const classes = classnames(CSS_CLASSES.ROOT, className, {
+    [CSS_CLASSES.MINI]: mini,
+    [CSS_CLASSES.EXTENDED]: extended,
+    [CSS_CLASSES.EXITED]: exited,
   });
 
   return (

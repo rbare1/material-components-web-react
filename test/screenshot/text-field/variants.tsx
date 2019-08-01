@@ -4,4 +4,6 @@ export default [
   'outlined',
   'textArea',
   'refTest',
+  'autoFocus',
+  'noLabel',
 ];

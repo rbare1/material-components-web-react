@@ -28,15 +28,15 @@ import {MDCListAdapter} from '@material/list/adapter';
 // @ts-ignore @types cannot be used on dist files
 import memoizeOne from 'memoize-one/dist/memoize-one.cjs.js';
 
-import ListItem, {ListItemProps} from './ListItem'; // eslint-disable-line no-unused-vars
+import ListItem, {ListItemProps} from './ListItem'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import ListItemGraphic from './ListItemGraphic';
 import ListItemText from './ListItemText';
 import ListItemMeta from './ListItemMeta';
 import ListDivider from './ListDivider';
 import ListGroup from './ListGroup';
 import ListGroupSubheader from './ListGroupSubheader';
-const ARIA_ORIENTATION = 'aria-orientation';
-const VERTICAL = 'vertical';
+
+const HORIZONTAL = 'horizontal';
 
 export interface ListProps extends React.HTMLProps<HTMLElement> {
   className?: string;
@@ -52,7 +52,8 @@ export interface ListProps extends React.HTMLProps<HTMLElement> {
   wrapFocus?: boolean;
   tag?: string;
   ref?: React.Ref<any>;
-};
+  orientation?: 'vertical' | 'horizontal';
+}
 
 interface ListState {
   listItemClassNames: {[listItemIndex: number]: string[]};
@@ -68,11 +69,16 @@ export interface ListItemContextShape {
   onDestroy?: (index: number) => void;
   getListItemInitialTabIndex?: (index: number) => number;
   getClassNamesFromList?: () => ListState['listItemClassNames'];
-  tabIndex?: number
+  tabIndex?: number;
 }
 
-function isSelectedIndexType(selectedIndex: unknown): selectedIndex is MDCListIndex {
-  return typeof selectedIndex === 'number' && !isNaN(selectedIndex) || Array.isArray(selectedIndex);
+function isSelectedIndexType(
+  selectedIndex: unknown
+): selectedIndex is MDCListIndex {
+  return (
+    (typeof selectedIndex === 'number' && !isNaN(selectedIndex)) ||
+    Array.isArray(selectedIndex)
+  );
 }
 
 export const defaultListItemContext: ListItemContextShape = {
@@ -98,19 +104,18 @@ export default class List extends React.Component<ListProps, ListState> {
   };
 
   static defaultProps: Partial<ListProps> = {
-    'className': '',
-    'checkboxList': false,
-    'radioList': false,
-    'nonInteractive': false,
-    'dense': false,
-    'avatarList': false,
-    'twoLine': false,
-    'singleSelection': false,
-    'selectedIndex': -1,
-    'handleSelect': () => {},
-    'wrapFocus': true,
-    'aria-orientation': VERTICAL,
-    'tag': 'ul',
+    className: '',
+    checkboxList: false,
+    radioList: false,
+    nonInteractive: false,
+    dense: false,
+    avatarList: false,
+    twoLine: false,
+    singleSelection: false,
+    selectedIndex: -1,
+    handleSelect: () => {},
+    wrapFocus: true,
+    tag: 'ul',
   };
 
   componentDidMount() {
@@ -123,8 +128,9 @@ export default class List extends React.Component<ListProps, ListState> {
       this.foundation.setSelectedIndex(selectedIndex);
     }
     this.foundation.setWrapFocus(wrapFocus!);
+    // Vertical is the default so true unless explicitly horizontal.
     this.foundation.setVerticalOrientation(
-      this.props[ARIA_ORIENTATION] === VERTICAL
+      this.props.orientation !== HORIZONTAL
     );
     this.initializeListType();
   }
@@ -141,9 +147,9 @@ export default class List extends React.Component<ListProps, ListState> {
     if (wrapFocus !== prevProps.wrapFocus) {
       this.foundation.setWrapFocus(wrapFocus!);
     }
-    if (this.props[ARIA_ORIENTATION] !== prevProps[ARIA_ORIENTATION]) {
+    if (this.props.orientation !== prevProps.orientation) {
       this.foundation.setVerticalOrientation(
-        this.props[ARIA_ORIENTATION] === VERTICAL
+        this.props.orientation !== HORIZONTAL
       );
     }
   }
@@ -157,23 +163,34 @@ export default class List extends React.Component<ListProps, ListState> {
     const {cssClasses, strings} = MDCListFoundation;
 
     if (!this.listElement.current) return;
-    const checkboxListItems = this.listElement.current.querySelectorAll(strings.ARIA_ROLE_CHECKBOX_SELECTOR);
-    const radioSelectedListItem = this.listElement.current.querySelector(strings.ARIA_CHECKED_RADIO_SELECTOR);
+    const checkboxListItems = this.listElement.current.querySelectorAll(
+      strings.ARIA_ROLE_CHECKBOX_SELECTOR
+    );
+    const radioSelectedListItem = this.listElement.current.querySelector(
+      strings.ARIA_CHECKED_RADIO_SELECTOR
+    );
 
     if (checkboxListItems.length) {
-      const preselectedItems = this.listElement.current.querySelectorAll(strings.ARIA_CHECKED_CHECKBOX_SELECTOR);
-      const selectedIndex =
-          [].map.call(preselectedItems, (listItem: Element) => this.listElements.indexOf(listItem)) as number[];
+      const preselectedItems = this.listElement.current.querySelectorAll(
+        strings.ARIA_CHECKED_CHECKBOX_SELECTOR
+      );
+      const selectedIndex = [].map.call(preselectedItems, (listItem: Element) =>
+        this.listElements.indexOf(listItem)
+      ) as number[];
       this.foundation.setSelectedIndex(selectedIndex);
     } else if (singleSelection) {
-      const isActivated = this.listElement.current.querySelector(cssClasses.LIST_ITEM_ACTIVATED_CLASS);
+      const isActivated = this.listElement.current.querySelector(
+        cssClasses.LIST_ITEM_ACTIVATED_CLASS
+      );
       if (isActivated) {
         this.foundation.setUseActivatedClass(true);
       }
     } else if (radioSelectedListItem) {
-      this.foundation.setSelectedIndex(this.listElements.indexOf(radioSelectedListItem));
+      this.foundation.setSelectedIndex(
+        this.listElements.indexOf(radioSelectedListItem)
+      );
     }
-  }
+  };
 
   get listElements(): Element[] {
     if (this.listElement.current) {
@@ -187,13 +204,7 @@ export default class List extends React.Component<ListProps, ListState> {
   }
 
   get classes() {
-    const {
-      className,
-      nonInteractive,
-      dense,
-      avatarList,
-      twoLine,
-    } = this.props;
+    const {className, nonInteractive, dense, avatarList, twoLine} = this.props;
     return classnames('mdc-list', className, {
       'mdc-list--non-interactive': nonInteractive,
       'mdc-list--dense': dense,
@@ -205,22 +216,27 @@ export default class List extends React.Component<ListProps, ListState> {
   get adapter(): MDCListAdapter {
     return {
       getListItemCount: () => this.listElements.length,
-      getFocusedElementIndex: () => this.listElements.indexOf(document.activeElement as HTMLLIElement),
+      getFocusedElementIndex: () =>
+        this.listElements.indexOf(document.activeElement as HTMLLIElement),
+      getAttributeForElementIndex: (index, attr) => {
+        const listItem = this.listElements[index];
+        return listItem.getAttribute(attr);
+      },
       setAttributeForElementIndex: (index, attr, value) => {
         const listItem = this.listElements[index];
         if (listItem) {
           listItem.setAttribute(attr, value);
         }
       },
-      // TODO: implement
-      // https://github.com/material-components/material-components-web-react/issues/822
-      getAttributeForElementIndex: () => '',
       /**
        * Pushes class name to state.listItemClassNames[listItemIndex] if it doesn't yet exist.
        */
       addClassForElementIndex: (index, className) => {
         const {listItemClassNames} = this.state;
-        if (listItemClassNames[index] && listItemClassNames[index].indexOf(className) === -1) {
+        if (
+          listItemClassNames[index] &&
+          listItemClassNames[index].indexOf(className) === -1
+        ) {
           listItemClassNames[index].push(className);
         } else {
           listItemClassNames[index] = [className];
@@ -243,10 +259,14 @@ export default class List extends React.Component<ListProps, ListState> {
       },
       setTabIndexForListItemChildren: (listItemIndex, tabIndexValue) => {
         const listItem = this.listElements[listItemIndex];
-        const selector = MDCListFoundation.strings.CHILD_ELEMENTS_TO_TOGGLE_TABINDEX;
-        const listItemChildren: Element[] =
-          [].slice.call(listItem.querySelectorAll(selector));
-        listItemChildren.forEach((el) => el.setAttribute('tabindex', tabIndexValue));
+        const selector =
+          MDCListFoundation.strings.CHILD_ELEMENTS_TO_TOGGLE_TABINDEX;
+        const listItemChildren: Element[] = [].slice.call(
+          listItem.querySelectorAll(selector)
+        );
+        listItemChildren.forEach((el) =>
+          el.setAttribute('tabindex', tabIndexValue)
+        );
       },
       focusItemAtIndex: (index) => {
         const element = this.listElements[index] as HTMLElement | undefined;
@@ -262,11 +282,15 @@ export default class List extends React.Component<ListProps, ListState> {
       },
       hasCheckboxAtIndex: (index) => {
         const listItem = this.listElements[index];
-        return !!listItem.querySelector(MDCListFoundation.strings.CHECKBOX_SELECTOR);
+        return !!listItem.querySelector(
+          MDCListFoundation.strings.CHECKBOX_SELECTOR
+        );
       },
       hasRadioAtIndex: (index) => {
         const listItem = this.listElements[index];
-        return !!listItem.querySelector(MDCListFoundation.strings.RADIO_SELECTOR);
+        return !!listItem.querySelector(
+          MDCListFoundation.strings.RADIO_SELECTOR
+        );
       },
       isCheckboxCheckedAtIndex: (index) => {
         const listItem = this.listElements[index];
@@ -306,8 +330,10 @@ export default class List extends React.Component<ListProps, ListState> {
     const {selectedIndex} = this.props;
     let tabIndex = -1;
     if (!this.hasInitializedListItemTabIndex) {
-      const isSelectedIndexArray
-        = Array.isArray(selectedIndex) && selectedIndex.length > 0 && index === selectedIndex[0];
+      const isSelectedIndexArray =
+        Array.isArray(selectedIndex) &&
+        selectedIndex.length > 0 &&
+        index === selectedIndex[0];
       const isSelected = selectedIndex === index;
       if (isSelectedIndexArray || isSelected || selectedIndex === -1) {
         tabIndex = 0;
@@ -316,7 +342,7 @@ export default class List extends React.Component<ListProps, ListState> {
     }
 
     return tabIndex;
-  }
+  };
 
   /**
    * Method checks if the list item at `index` contains classes. If true,
@@ -326,7 +352,7 @@ export default class List extends React.Component<ListProps, ListState> {
   private getListItemClassNames = () => {
     const {listItemClassNames} = this.state;
     return listItemClassNames;
-  }
+  };
 
   handleKeyDown = (e: React.KeyboardEvent<any>, index: number) => {
     e.persist(); // Persist the synthetic event to access its `key`
@@ -363,7 +389,6 @@ export default class List extends React.Component<ListProps, ListState> {
     this.setState({listItemClassNames});
   };
 
-
   private getListProps = (checkboxList?: boolean, radioList?: boolean) => ({
     checkboxList: Boolean(checkboxList),
     radioList: Boolean(radioList),
@@ -376,14 +401,13 @@ export default class List extends React.Component<ListProps, ListState> {
     getListItemInitialTabIndex: this.getListItemInitialTabIndex,
   });
 
-
   // decreases rerenders
   // https://overreacted.io/writing-resilient-components/#dont-stop-the-data-flow-in-rendering
   getListPropsMemoized = memoizeOne(this.getListProps);
 
   render() {
     const {
-      /* eslint-disable no-unused-vars */
+      /* eslint-disable @typescript-eslint/no-unused-vars */
       className,
       checkboxList,
       radioList,
@@ -396,9 +420,10 @@ export default class List extends React.Component<ListProps, ListState> {
       selectedIndex,
       handleSelect,
       wrapFocus,
-      /* eslint-enable no-unused-vars */
+      /* eslint-enable @typescript-eslint/no-unused-vars */
       children,
       tag: Tag,
+      orientation,
       ...otherProps
     } = this.props;
 
@@ -409,9 +434,21 @@ export default class List extends React.Component<ListProps, ListState> {
         className={this.classes}
         ref={this.listElement}
         role={this.role}
+        // Only specify aria-orientation if:
+        // - orientation is horizontal (vertical is implicit)
+        // - props.role is falsy (not overridden)
+        // - this.role is truthy (we are applying role for checkboxList/radiogroup that supports aria-orientation)
+        // https://github.com/material-components/material-components-web/tree/master/packages/mdc-list#accessibility
+        aria-orientation={
+          orientation === HORIZONTAL && !role && this.role
+            ? HORIZONTAL
+            : undefined
+        }
         {...otherProps}
       >
-        <ListItemContext.Provider value={this.getListPropsMemoized(checkboxList, radioList)}>
+        <ListItemContext.Provider
+          value={this.getListPropsMemoized(checkboxList, radioList)}
+        >
           {children}
         </ListItemContext.Provider>
       </Tag>

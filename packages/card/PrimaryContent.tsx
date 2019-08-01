@@ -22,23 +22,32 @@
 
 import React from 'react';
 import classnames from 'classnames';
-import {withRipple, InjectedProps} from '@material/react-ripple';
+import {
+  withRipple,
+  InjectedProps,
+  // @ts-ignore TODO(issues/955) Remove once possible
+  RippledComponentProps, // eslint-disable-line @typescript-eslint/no-unused-vars
+} from '@material/react-ripple';
 
-export interface PrimaryContentBaseProps extends React.HTMLProps<HTMLDivElement>, InjectedProps<HTMLDivElement>{
+import {CSS_CLASSES} from './constant';
+
+export interface PrimaryContentBaseProps
+  extends React.HTMLProps<HTMLDivElement>,
+    InjectedProps<HTMLDivElement> {
   className: string;
   unbounded?: boolean;
-};
+}
 
-export const PrimaryContentBase: React.FunctionComponent<PrimaryContentBaseProps> = ({
-  /* eslint-disable react/prop-types */
+export const PrimaryContentBase: React.FunctionComponent<
+  PrimaryContentBaseProps
+> = ({
   className = '',
   initRipple,
   children,
-  unbounded, // eslint-disable-line no-unused-vars
-  /* eslint-enable react/prop-types */
+  unbounded, // eslint-disable-line @typescript-eslint/no-unused-vars
   ...otherProps
 }) => {
-  const classes = classnames('mdc-card__primary-action', className);
+  const classes = classnames(CSS_CLASSES.PRIMARY_ACTION, className);
 
   return (
     <div className={classes} ref={initRipple} {...otherProps}>
@@ -47,4 +56,6 @@ export const PrimaryContentBase: React.FunctionComponent<PrimaryContentBaseProps
   );
 };
 
-export default withRipple<PrimaryContentBaseProps, HTMLDivElement>(PrimaryContentBase);
+export default withRipple<PrimaryContentBaseProps, HTMLDivElement>(
+  PrimaryContentBase
+);
